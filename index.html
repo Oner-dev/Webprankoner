@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYSTEM WARNING - CRITICAL OVERRIDE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #050000; color: #ff0033; padding: 20px; overflow-x: hidden; user-select: none; }
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 0, 0, 0.02));
+            z-index: 10; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+        .header { border: 2px solid #ff0033; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(255, 0, 51, 0.5); animation: pulse 1s infinite alternate; margin-bottom: 20px; }
+        @keyframes pulse {
+            0% { border-color: #ff0033; box-shadow: 0 0 10px rgba(255, 0, 51, 0.4); }
+            100% { border-color: #ff6600; box-shadow: 0 0 25px rgba(255, 102, 0, 0.8); }
+        }
+        .title { font-size: 1.3rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .status-box { background: rgba(20, 0, 0, 0.8); border-left: 4px solid #ff0033; padding: 10px; margin-bottom: 15px; font-size: 0.85rem; color: #ff8888; }
+        .status-item { margin: 5px 0; display: flex; justify-content: space-between; }
+        .terminal { background: #000; border: 1px solid #330000; padding: 12px; height: 250px; overflow-y: auto; font-size: 0.8rem; color: #00ff66; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.2); }
+        .terminal-line { margin-bottom: 4px; line-height: 1.3; }
+        .alert-text { color: #ff0033; font-weight: bold; }
+        .progress-container { border: 1px solid #ff0033; height: 20px; position: relative; margin-bottom: 15px; background: #111; }
+        .progress-bar { background: #ff0033; height: 100%; width: 0%; transition: width 0.3s; }
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 2px; font-size: 0.75rem; color: #fff; font-weight: bold; }
+        .modal-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .modal-box { border: 3px solid #ff0033; padding: 25px; background: #100000; box-shadow: 0 0 30px #ff0033; }
+        .modal-box h2 { font-size: 1.5rem; margin-bottom: 10px; color: #ff0033; }
+        .reveal-btn { opacity: 0.15; padding: 10px; text-align: center; margin-top: 30px; font-size: 0.7rem; color: #aaa; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">⚠️ WARNING ⚠️</div>
+        <p style="font-size:0.75rem; margin-top:5px; color:#fff;">PERANGKAT DALAM PENGAWASAN</p>
+    </div>
+
+    <div class="status-box">
+        <div class="status-item"><span>TARGET IP:</span> <span id="user-ip">Loading...</span></div>
+        <div class="status-item"><span>PERANGKAT:</span> <span id="user-device">Detecting...</span></div>
+        <div class="status-item"><span>DATABASE:</span> <span style="color:#00ff66;">MariaDB Connected</span></div>
+        <div class="status-item"><span>LOKASI GPS:</span> <span style="color:#ff0033;">TERKUNCI (LAT/LONG EXPORTED)</span></div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="p-bar"></div>
+        <div class="progress-text" id="p-text">MENGUNGKAP DATA PRIBADI... 0%</div>
+    </div>
+
+    <div class="terminal" id="terminal">
+        <div class="terminal-line">[SYSTEM] Initializing Trojan.Android.Spyware...</div>
+        <div class="terminal-line">[MARIADB] Connecting to remote host database... OK</div>
+        <div class="terminal-line">[MARIADB] Querying table `tbl_intercept_logs`... OK</div>
+    </div>
+
+    <div class="reveal-btn" id="secret-trigger">
+        [ TAP 2x DI SINI UNTUK MATIKAN ]
+    </div>
+
+    <div class="modal-alert" id="panicModal">
+        <div class="modal-box">
+            <h2>⚠️ SADAP AKTIF ⚠️</h2>
+            <p style="color:#fff; font-size:0.9rem; margin-bottom:15px;">
+                Semua isi galeri, WhatsApp, dan rekaman mikrofon sedang diunggah ke server MariaDB.
+            </p>
+            <p style="color:#ff6600; font-size:0.8rem;">
+                Dilarang mematikan HP atau koneksi internet.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Deteksi Tipe HP lewat JavaScript
+        const ua = navigator.userAgent;
+        let device = "Android Device (Generic)";
+        if (/iPhone/i.test(ua)) device = "Apple iPhone (iOS)";
+        else if (/Samsung/i.test(ua)) device = "Samsung Galaxy Series";
+        else if (/Xiaomi|Redmi/i.test(ua)) device = "Xiaomi / Redmi Device";
+        else if (/Oppo/i.test(ua)) device = "OPPO Smartphone";
+        else if (/Vivo/i.test(ua)) device = "Vivo Smartphone";
+        document.getElementById('user-device').innerText = device;
+
+        // Acak IP Address
+        const randomIP = `182.253.${Math.floor(Math.random()*90)+10}.${Math.floor(Math.random()*100)+100}`;
+        document.getElementById('user-ip').innerText = randomIP;
+
+        const logs = [
+            "[LOG] Accessing internal storage (/sdcard/DCIM)...",
+            "[LOG] Extracting WhatsApp databases (msgstore.db)...",
+            "[LOG] Turning on background microphone stream...",
+            "[LOG] Front camera snapshot captured.",
+            "[MARIADB] INSERT INTO `gallery_dump` VALUES (SUCCESS)",
+            "[MARIADB] INSERT INTO `contact_list` (342 contacts uploaded)",
+            "[WARNING] Keylogger attached to system keyboard.",
+            "[SYSTEM] Syncing passwords to remote MariaDB instance...",
+            "[ALERT] DO NOT CLOSE THIS PAGE OR DATA WILL BE FORMATTED!"
+        ];
+
+        let index = 0;
+        const terminal = document.getElementById('terminal');
+        const pBar = document.getElementById('p-bar');
+        const pText = document.getElementById('p-text');
+        let progress = 0;
+
+        function addLog() {
+            if (index < logs.length) {
+                const line = document.createElement('div');
+                line.className = 'terminal-line' + (logs[index].includes('WARNING') || logs[index].includes('ALERT') ? ' alert-text' : '');
+                line.innerText = logs[index];
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+                index++;
+
+                progress += 11;
+                if(progress > 100) progress = 100;
+                pBar.style.width = progress + '%';
+                pText.innerText = 'MENGUNGKAP DATA PRIBADI... ' + progress + '%';
+            } else {
+                setTimeout(() => {
+                    document.getElementById('panicModal').style.display = 'flex';
+                }, 1000);
+            }
+        }
+
+        setInterval(addLog, 1200);
+
+        let clickCount = 0;
+        document.getElementById('secret-trigger').addEventListener('click', function() {
+            clickCount++;
+            if (clickCount >= 2) {
+                document.getElementById('panicModal').style.display = 'none';
+                document.body.innerHTML = `
+                    <div style="text-align:center; padding:50px 20px; color:#00ff66;">
+                        <h1 style="font-size:3rem;">😂 CUMA PRANK! 😂</h1>
+                        <p style="font-size:1.2rem; margin-top:20px; color:#fff;">HP kamu aman kok, nggak ada yang disadap.</p>
+                        <button onclick="location.reload()" style="margin-top:30px; padding:10px 20px; background:#00ff66; border:none; font-weight:bold; cursor:pointer;">Ulangi Prank</button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
